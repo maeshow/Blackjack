@@ -73,4 +73,6 @@
         - isBust(int totalScore)
         - isPlayerWin(int playerScore, int dealerScore)
         - isDraw(int playerScore, int dealerScore)
+        - isBlackjack(Type type)
+        - hasFaceCard(Type type)
     - Messages

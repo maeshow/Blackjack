@@ -13,6 +13,7 @@ public class App {
 
     private static final String[] TRUMP_NUMBER = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
     private static final int ACE_INDEX = 0;
+    private static final int TEN_INDEX = 9;
     private static final int JACK_INDEX = 10;
     private static final int QUEEN_INDEX = 11;
     private static final int KING_INDEX = 12;
@@ -251,11 +252,41 @@ public class App {
     }
 
     private static boolean isPlayerWin(int playerScore, int dealerScore) {
+        if (isBlackjack(Type.PLAYER)) {
+            return true;
+        }
         return dealerScore < playerScore;
     }
 
     private static boolean isDraw(int playerScore, int dealerScore) {
+        if (isBlackjack(Type.DEALER)) {
+            return false;
+        }
         return playerScore == dealerScore;
+    }
+
+    private static boolean isBlackjack(Type type) {
+        switch (type) {
+        case PLAYER:
+            return PLAYER_CARDS.contains(ACE_INDEX) && (PLAYER_CARDS.contains(TEN_INDEX) || hasFaceCard(type));
+        case DEALER:
+            return DEALER_CARDS.contains(ACE_INDEX) && (DEALER_CARDS.contains(TEN_INDEX) || hasFaceCard(type));
+        default:
+            return false;
+        }
+    }
+
+    private static boolean hasFaceCard(Type type) {
+        switch (type) {
+        case PLAYER:
+            return PLAYER_CARDS.contains(JACK_INDEX) || PLAYER_CARDS.contains(QUEEN_INDEX)
+                    || PLAYER_CARDS.contains(KING_INDEX);
+        case DEALER:
+            return DEALER_CARDS.contains(JACK_INDEX) || DEALER_CARDS.contains(QUEEN_INDEX)
+                    || DEALER_CARDS.contains(KING_INDEX);
+        default:
+            return false;
+        }
     }
 
     private static void showWithNewLine(String message) {
