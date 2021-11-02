@@ -46,18 +46,24 @@
 - src/
     - App
         - String[] TRUMP_NUMBER
-        - int[] TOTAL_SCORE
+        - List<Integer> PLAYER_CARDS
+        - List<Integer> DEALER_CARDS
         - enum Result { PLAYER_WIN, PLAYER_LOSE, PLAYER_BURST, DEALER_BURST, DRAW }
         - enum Type { PLAYER, DEALER }
         - main()
         - startGame()
+        - endGame()
+        - startRound()
+        - endRound()
         - giveInitialCard()
         - startTurn(Type type)
         - showResult()
         - giveCard(Type type)
-        - shouldDrawCard(Type type)
-        - showTotalScore()
-        - addScore(int index, int trumpNumber)
+        - addCard(Type type, int trumpNumber)
+        - clearCard()
+        - shouldDrawCard(Type type, int totalScore)
+        - showTotalScore(Type type, int totalScore)
+        - getScore(Type type)
         - getTrumpNumberByRandom()
         - convertToScore(int trumpNumber, int totalScore)
         - getPlayerInput()
@@ -65,6 +71,6 @@
         - isYes(String str)
         - getGameResult()
         - isBust(int totalScore)
-        - isPlayerWin()
-        - isDraw()
+        - isPlayerWin(int playerScore, int dealerScore)
+        - isDraw(int playerScore, int dealerScore)
     - Messages
