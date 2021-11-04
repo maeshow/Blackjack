@@ -31,8 +31,15 @@ public class App {
 
     private static final int GIVE_CARD_TIMES_IN_FIRST = 2;
 
+    private static int COIN = 100;
+    private static final int ENTRY_COIN = 10;
+    private static final int PRIZE_COIN = 20;
+    private static final int BLACKJACK_COIN = 30;
+    private static final int DRAW_COIN = 10;
+    private static final int END_GAME_COIN_LIMIT = 0;
+
     private static enum Result {
-        PLAYER_WIN, PLAYER_LOSE, PLAYER_BUST, DEALER_BURST, DRAW
+        PLAYER_WIN, PLAYER_BLACKJACK, PLAYER_LOSE, PLAYER_BUST, DEALER_BURST, DRAW
     }
 
     private static enum Type {
@@ -45,23 +52,41 @@ public class App {
     }
 
     public static void startGame() {
-        startRound();
-        endRound();
+        while (hasCoins()) {
+            startRound();
+            endRound();
+        }
     }
 
     public static void endGame() {
+        showWithNewLine(Messages.NOT_ENOUGH_COIN);
+        showWithNewLine(Messages.END_GAME);
         STDIN.close();
     }
 
     private static void startRound() {
+        bettingCoins();
         giveInitialCard();
         startTurn(Type.PLAYER);
         startTurn(Type.DEALER);
     }
 
     private static void endRound() {
-        showResult();
+        Result result = getGameResult();
+        showResult(result);
+        showBettingResult(result);
         clearCard();
+    }
+
+    private static boolean hasCoins() {
+        return END_GAME_COIN_LIMIT < COIN;
+    }
+
+    private static void bettingCoins() {
+        showFormattedMessage(Messages.COIN_INFO, COIN);
+        showFormattedMessage(Messages.BETTING_COIN, ENTRY_COIN);
+        showNewLine();
+        takeCoins(ENTRY_COIN);
     }
 
     private static void giveInitialCard() {
@@ -84,12 +109,16 @@ public class App {
         }
     }
 
-    private static void showResult() {
-        switch (getGameResult()) {
+    private static void showResult(Result result) {
+        switch (result) {
         case PLAYER_BUST:
             showWithNewLine(Messages.PLAYER_BUST);
         case PLAYER_LOSE:
             showWithNewLine(Messages.LOSE);
+            break;
+        case PLAYER_BLACKJACK:
+            showWithNewLine(Messages.BLACKJACK);
+            showWithNewLine(Messages.WIN);
             break;
         case DEALER_BURST:
             showWithNewLine(Messages.DEALER_BUST);
@@ -100,6 +129,33 @@ public class App {
             showWithNewLine(Messages.DRAW);
             break;
         }
+    }
+
+    private static void showBettingResult(Result result) {
+        switch (result) {
+        case PLAYER_BUST:
+        case PLAYER_LOSE:
+            showWithNewLine(Messages.TAKE_COIN);
+            break;
+        case PLAYER_BLACKJACK:
+            showFormattedMessage(Messages.GIVE_COIN, BLACKJACK_COIN);
+            break;
+        case DEALER_BURST:
+        case PLAYER_WIN:
+            showFormattedMessage(Messages.GIVE_COIN, PRIZE_COIN);
+            break;
+        case DRAW:
+            showFormattedMessage(Messages.GIVE_COIN, DRAW_COIN);
+            break;
+        }
+    }
+
+    private static void giveCoins(int coin) {
+        COIN += coin;
+    }
+
+    private static void takeCoins(int coin) {
+        COIN -= coin;
     }
 
     private static void giveCard(Type type) {
@@ -179,18 +235,21 @@ public class App {
 
     private static int convertToScore(int trumpNumber, int totalScore) {
         switch (trumpNumber) {
-        case JACK_INDEX:
-        case QUEEN_INDEX:
-        case KING_INDEX:
-            return TEN_POINT;
         case ACE_INDEX:
             if (totalScore <= MAX_A_AS_ELEVEN) {
                 return ELEVEN_POINT;
             }
             return ONE_POINT;
         default:
+            if (isFaceCard(trumpNumber)) {
+                return TEN_POINT;
+            }
             return trumpNumber + 1;
         }
+    }
+
+    private static boolean isFaceCard(int trumpNumber) {
+        return trumpNumber == JACK_INDEX || trumpNumber == QUEEN_INDEX || trumpNumber == KING_INDEX;
     }
 
     private static boolean getPlayerInput() {
@@ -235,13 +294,20 @@ public class App {
         if (isBust(playerScore)) {
             return Result.PLAYER_BUST;
         }
+        if (isBlackjack(Type.PLAYER)) {
+            giveCoins(BLACKJACK_COIN);
+            return Result.PLAYER_BLACKJACK;
+        }
         if (isBust(dealerScore)) {
+            giveCoins(PRIZE_COIN);
             return Result.DEALER_BURST;
         }
         if (isPlayerWin(playerScore, dealerScore)) {
+            giveCoins(PRIZE_COIN);
             return Result.PLAYER_WIN;
         }
         if (isDraw(playerScore, dealerScore)) {
+            giveCoins(DRAW_COIN);
             return Result.DRAW;
         }
         return Result.PLAYER_LOSE;
@@ -252,9 +318,6 @@ public class App {
     }
 
     private static boolean isPlayerWin(int playerScore, int dealerScore) {
-        if (isBlackjack(Type.PLAYER)) {
-            return true;
-        }
         return dealerScore < playerScore;
     }
 

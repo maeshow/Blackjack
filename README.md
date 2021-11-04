@@ -16,6 +16,14 @@
 - ただし、「21」を超えた場合は、バーストとなる
 - ディーラーは17以下の場合は必ずカードを引く
 - 持ち点が10より大きい場合、Aは1として計算する
+- ブラックジャック判定（A と 10 / J / Q / K の組み合わせ）を入れる
+- コインを賭けれるようにする
+    - 手持ち 100 コインでコインが 0 になると終了
+    - １回あたり 10 コインを賭ける
+    - ブラックジャックで勝ち: 30 コインの払い戻し
+    - ブラックジャック以外で勝ち: 20 コインの払い戻し
+    - 引き分け: 10 コイン（掛け金）の払い戻し
+    - 負け: 払い戻しなし（賭け金没収）
 
 ### インターフェース
 
@@ -24,21 +32,29 @@
 実行例
 
 ``` console
-あなたに「8」が配られました。
-ディーラーに「A」が配られました。
-あなたに「2」が配られました。
-ディーラーに「5」が配られました。
-ディーラーの合計は 15 です。
-現在の合計は 10 です。
-もう１枚カードを引きますか？(Y/N)：Y
-あなたに「9」が配られました。
-現在の合計は 19 です。
-もう１枚カードを引きますか？(Y/N)：N
-ディーラーに「J」が配られました。
-ディーラーの合計は 15 です。
-ディーラーに「3」が配られました。
-ディーラーの合計は 18 です。
-あなたの勝ちです
+現在の手持ち： 100コイン
+掛け金(10コイン)を賭けます。        
+
+あなたに「4」が配られました。       
+ディーラーに「9」が配られました。   
+あなたに「A」が配られました。       
+ディーラーに「3」が配られました。   
+
+ディーラーの合計は 12 です。        
+現在の合計は 15 です。
+もう一枚カードを引きますか？(Y/N)： Y
+
+あなたに「3」が配られました。
+現在の合計は 18 です。       
+
+もう一枚カードを引きますか？(Y/N)： N
+
+ディーラーに「7」が配られました。
+ディーラーの合計は 19 です。
+
+あなたの負けです。
+掛け金が没収されます。
+現在の手持ち： 90コイン
 ```
 
 ## Structure Overview
@@ -55,9 +71,14 @@
         - endGame()
         - startRound()
         - endRound()
+        - hasCoins()
+        - bettingCoins()
         - giveInitialCard()
         - startTurn(Type type)
-        - showResult()
+        - showResult(Result result)
+        - showBettingResult(Result result)
+        - giveCoins(int coin)
+        - takeCoins(int coin)
         - giveCard(Type type)
         - addCard(Type type, int trumpNumber)
         - clearCard()
@@ -66,6 +87,7 @@
         - getScore(Type type)
         - getTrumpNumberByRandom()
         - convertToScore(int trumpNumber, int totalScore)
+        - isFaceCard(int trumpNumber)
         - getPlayerInput()
         - isCorrectString(String str)
         - isYes(String str)
